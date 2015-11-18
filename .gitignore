@@ -1,0 +1,9 @@
+*.pyc
+*.DS_Store
+
+# confidential configuration file
+app/.env
+
+# IDE settings
+*.sublime-project
+*.sublime-workspace
