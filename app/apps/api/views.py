@@ -10,5 +10,5 @@ class RecordViewSet(viewsets.ModelViewSet):
     """CRUD api endpoints for managing records.
     """
 
-    queryset = Record.objects.all().order_by('-created')
+    queryset = Record.objects.all().order_by('-id')
     serializer_class = RecordSerializer
