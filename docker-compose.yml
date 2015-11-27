@@ -7,11 +7,11 @@ db:
 
 web:
   build: dockerfiles/app
-  command: make run
+  command: bash -c "sleep 2 && make run"
   links:
     - db
   ports:
     - "8000:8000"
   volumes:
-    - app:/home/ubuntu/app/
+    - ./app:/home/ubuntu/app/
   working_dir: /home/ubuntu/app/
