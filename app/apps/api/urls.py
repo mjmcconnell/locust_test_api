@@ -1,15 +1,16 @@
-# thrid-party imports
-from django.conf.urls import patterns, url
+"""Url routing for all local apps
+"""
+# third party imports
+from django.conf.urls import url, include
+from rest_framework import routers
 
 # local imports
-from apps.api.views import base
+from apps.api import views
 
+router = routers.DefaultRouter()
+router.register(r'records', views.RecordViewSet)
 
-urlpatterns = patterns(
-    '',
-    url(
-        r'^$',
-        base.api_root,
-        name="api-root",
-    ),
-)
+# Wire up our API using automatic URL routing.
+urlpatterns = [
+    url(r'^', include(router.urls)),
+]
