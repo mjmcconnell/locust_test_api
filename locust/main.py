@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 from locust import HttpLocust, TaskSet, task
@@ -6,7 +5,7 @@ from locust import HttpLocust, TaskSet, task
 TYPE_MAP = {
     'datetime': datetime.now(),
     'integer': 1,
-    'sting': 'test',
+    'string': 'original',
     'field': None,
 }
 
@@ -22,64 +21,74 @@ class WebsiteTasks(TaskSet):
         """Work out the available options for a given endpoint
         If it accepts POST requests, build out an object the endpoint expects
         """
-        request = self.client.options(url)
+        fieldset = None
+        response = self.client.options(url)
+        json_response = response.json()
+        actions = json_response['actions']
 
-        if 'POST' in request['actions']:
+        if actions.get('POST'):
+            fieldset = json_response['actions']['POST']
+        elif actions.get('PUT'):
+            fieldset = json_response['actions']['PUT']
+
+        if fieldset:
             options = {}
-            for field, attrs in request['actions']['POST'].iteritems():
+            for field, attrs in fieldset.iteritems():
                 # Ignore read only fields
                 if attrs['read_only'] is True:
                     continue
 
-                if attrs['type'] == 'integer':
-                    options[field] = 1
-                elif attrs['type'] == 'string':
-                    options[field] = 'run on {}'.format(section)
-
+                # Set an appropriate value to each field
+                options[field] = TYPE_MAP.get(attrs['type'])
 
             self.post_data_options = options
 
+        return json_response
+
     def _make_get_request(self, url):
-        request = self.client.get(url)
+        response = self.client.get(url)
+        return response.json()
 
-    def _make_post_request(self, url, post_data_options):
-        request = self.client.post(url)
+    def _make_post_request(self, url):
+        response = self.client.post(url, self.post_data_options)
+        return response.json()
 
-    def _make_put_request(self, url, post_data_options):
-        request = self.client.put(url)
+    def _make_put_request(self, url):
+        response = self.client.put(url, self.post_data_options)
+        return response.json()
 
     def _make_delete_request(self, url):
-        request = self.client.delete(url)
+        self.client.delete(url)
 
-    @task(10)
+    @task
     def index_page(self):
-        request = self.client.get("/")
-        for section, url in json.loads(request.content).iteritems():
+        response = self._make_get_request("/")
+        for section, url in response.iteritems():
+            # View the root page
+            self._make_get_request(url)
+
             # View the possible options for the current section
-            s_request = self.client.options(url)
-            request_options = json.loads(s_request.content)
+            options = self._make_options_request(url, section)
 
-            # If we can send post requests, populate the post data and try to
-            # create a new object
-            if 'POST' in request_options['actions']:
-
-
+            if 'POST' in options['actions']:
                 # Send the post request to create a new record
-                p_request = self.client.post(url, post_data)
+                post_response = self._make_post_request(url)
                 # Ensure the new record has been stored in the datastore
                 # by looking up its api endpoint
-                record_url = json.loads(p_request.content)['url']
-                get_request = self.client.get(record_url)
+                self._make_get_request(post_response['url'])
+                # View the possible options for the current section
+                record_options = self._make_options_request(
+                    post_response['url'], section)
 
-                # Test we can update the record
-                put_request = self.client.put(post_data)
+                if 'PUT' in record_options['actions']:
+                    # Test we can update the record
+                    self._make_put_request(post_response['url'])
 
                 # Then we finally ensure we can delete said record
-                delete_request = self.client.delete(record_url)
+                self._make_delete_request(post_response['url'])
 
 
 class WebsiteUser(HttpLocust):
-    host = "http://localhost:8000"
 
+    host = "http://localhost:8000"
     task_set = WebsiteTasks
-    max_wait = 1500
