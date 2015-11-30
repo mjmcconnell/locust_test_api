@@ -5,15 +5,6 @@ db:
   volumes:
     - /var/lib/postgresql
 
-locust:
-  build: dockerfiles/locust
-  command: locust -f main.py
-  ports:
-    - "8089:8089"
-  volumes:
-    - ./locust:/home/ubuntu/locust
-  working_dir: /home/ubuntu/locust
-
 web:
   build: dockerfiles/app
   command: bash -c "sleep 2 && make run"
@@ -24,3 +15,14 @@ web:
   volumes:
     - ./app:/home/ubuntu/app/
   working_dir: /home/ubuntu/app/
+
+locust:
+  build: dockerfiles/locust
+  command: locust -f main.py
+  links:
+    - web
+  ports:
+    - "8089:8089"
+  volumes:
+    - ./locust:/home/ubuntu/locust
+  working_dir: /home/ubuntu/locust

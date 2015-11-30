@@ -90,5 +90,5 @@ class WebsiteTasks(TaskSet):
 
 class WebsiteUser(HttpLocust):
 
-    host = "http://localhost:8000"
+    host = "http://web:8000"
     task_set = WebsiteTasks
