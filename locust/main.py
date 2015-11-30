@@ -1,9 +1,55 @@
 import json
+from datetime import datetime
 
 from locust import HttpLocust, TaskSet, task
 
+TYPE_MAP = {
+    'datetime': datetime.now(),
+    'integer': 1,
+    'sting': 'test',
+    'field': None,
+}
+
 
 class WebsiteTasks(TaskSet):
+
+    post_data_options = None
+    bad_post_data_options = {
+        'this_field_does': 'not exist'
+    }
+
+    def _make_options_request(self, url, section):
+        """Work out the available options for a given endpoint
+        If it accepts POST requests, build out an object the endpoint expects
+        """
+        request = self.client.options(url)
+
+        if 'POST' in request['actions']:
+            options = {}
+            for field, attrs in request['actions']['POST'].iteritems():
+                # Ignore read only fields
+                if attrs['read_only'] is True:
+                    continue
+
+                if attrs['type'] == 'integer':
+                    options[field] = 1
+                elif attrs['type'] == 'string':
+                    options[field] = 'run on {}'.format(section)
+
+
+            self.post_data_options = options
+
+    def _make_get_request(self, url):
+        request = self.client.get(url)
+
+    def _make_post_request(self, url, post_data_options):
+        request = self.client.post(url)
+
+    def _make_put_request(self, url, post_data_options):
+        request = self.client.put(url)
+
+    def _make_delete_request(self, url):
+        request = self.client.delete(url)
 
     @task(10)
     def index_page(self):
@@ -16,15 +62,7 @@ class WebsiteTasks(TaskSet):
             # If we can send post requests, populate the post data and try to
             # create a new object
             if 'POST' in request_options['actions']:
-                post_data = {}
-                for field, attrs in request_options['actions']['POST'].iteritems():
-                    if attrs['read_only'] is True:
-                        pass
 
-                    if attrs['type'] == 'integer':
-                        post_data[field] = 1
-                    elif attrs['type'] == 'string':
-                        post_data[field] = 'run on {}'.format(section)
 
                 # Send the post request to create a new record
                 p_request = self.client.post(url, post_data)
