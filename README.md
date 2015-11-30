@@ -41,7 +41,7 @@ Ensure docker is installed on your system ([Installation instructions][docker_co
 
     $ make run
 
-This will boot up a docker container exposing ports `8000` (app) and `5432` (db). Then visit the running application [http://127.0.0.1:8000](http://127.0.0.1:8000)
+This will boot up a docker container exposing ports `8000` (app) and `5432` (db). Then visit the running application [http://localhost:8000](http://localhost:8000)
 
 
 *Note if you are running this with boot2docker, ensure you have mapped your vm's ports are mapped correctly with:
@@ -59,7 +59,7 @@ This apps primary functionality is to load test against api endpoints, so there 
 
 To view the api docuemtation navigate to:
 
-    127.0.0.1:8000/docs/
+    localhost:8000/docs/
 
 
 Admin account
@@ -75,6 +75,19 @@ Stopping the app
 ===============
 
 To stop the app, simply press `Ctrl+C` in the running terminal.
+
+
+Running Locust.io
+===============
+
+The locust server is running on port `8089` so its accessable at [http://localhost:8089](http://localhost:8089).
+Currently locust is setup to run through each section of the app performing a set of actions:
+
+    Hit base view (list)
+    Create a new record
+    Navigate to new record
+    Update new record
+    Delete record
 
 [docker]: https://docker.io  "Docker"
 [docker_compose_install]: https://docs.docker.com/compose/install/  "Docker & Compose Installation"
