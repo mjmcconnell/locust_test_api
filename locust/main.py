@@ -10,12 +10,11 @@ TYPE_MAP = {
 }
 
 
-class WebsiteTasks(TaskSet):
+class MainTasks(TaskSet):
+    """Primary task set of the app
+    """
 
     post_data_options = None
-    bad_post_data_options = {
-        'this_field_does': 'not exist'
-    }
 
     def _make_options_request(self, url, section):
         """Work out the available options for a given endpoint
@@ -46,22 +45,34 @@ class WebsiteTasks(TaskSet):
         return json_response
 
     def _make_get_request(self, url):
+        """Make a get request, and return the json body
+        """
         response = self.client.get(url)
         return response.json()
 
     def _make_post_request(self, url):
+        """Make a post request with values populated
+        in the "options" request, and return the json body
+        """
         response = self.client.post(url, self.post_data_options)
         return response.json()
 
     def _make_put_request(self, url):
+        """Make a put request with values populated
+        in the "options" request, and return the json body
+        """
         response = self.client.put(url, self.post_data_options)
         return response.json()
 
     def _make_delete_request(self, url):
+        """Send a delete request
+        """
         self.client.delete(url)
 
     @task
-    def index_page(self):
+    def spider(self):
+        """Navigates through the API
+        """
         response = self._make_get_request("/")
         for section, url in response.iteritems():
             # View the root page
@@ -89,6 +100,10 @@ class WebsiteTasks(TaskSet):
 
 
 class WebsiteUser(HttpLocust):
+    """Entry point of the app
+    """
 
+    # Note the host url uses the "web" vhost name
+    # to map to the web docker instance ip address
     host = "http://web:8000"
-    task_set = WebsiteTasks
+    task_set = MainTasks
