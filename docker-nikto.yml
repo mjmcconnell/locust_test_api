@@ -1,0 +1,5 @@
+nikto:
+  image: activeshadow/nikto
+  command: nikto -h app -p 8000
+  external_links:
+    - locusttestapi_app_1:app

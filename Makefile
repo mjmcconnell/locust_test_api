@@ -12,16 +12,25 @@ help:
 db:
 	docker-compose -f docker-db.yml up -d --no-recreate
 
+run: db
+	docker-compose -f docker-app.yml up --no-recreate
+
 run-locust:
 ifneq ($(APP_RUNNING), true)
 	gnome-terminal -e "make run"
 	bash -c "sleep 1"
 endif
 
-	docker-compose -f docker-locust.yml up --no-recreate
+	docker-compose -f docker-locust.yml up -d --no-recreate
 
-run: db
-	docker-compose -f docker-app.yml up --no-recreate
+run-nikto:
+ifneq ($(APP_RUNNING), true)
+	gnome-terminal -e "make run"
+	bash -c "sleep 1"
+endif
+
+	docker-compose -f docker-nikto.yml up
+
 
 test: db
 	docker-compose -f docker-test.yml up
