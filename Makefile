@@ -4,9 +4,10 @@ APP_RUNNING = $(shell docker inspect -f {{.State.Running}} locusttestapi_app_1)
 help:
 	@echo "The following commands are available:"
 	@echo ""
-	@echo "make run:		Run local development server inside container."
-	@echo "make test:		Run tests."
+	@echo "make run:			Run local development server inside container."
+	@echo "make test:			Run tests."
 	@echo "make run-locust:		Run the locust server inside container."
+	@echo "make stop:			Stop all assoicated running containers."
 
 db:
 	docker-compose -f docker-db.yml up -d --no-recreate
@@ -24,3 +25,6 @@ run: db
 
 test: db
 	docker-compose -f docker-test.yml up
+
+stop:
+	docker ps -a | grep 'locusttestapi' | awk '{print $1}' | xargs docker stop
