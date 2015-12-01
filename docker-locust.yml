@@ -1,0 +1,10 @@
+locust:
+  build: dockerfiles/locust
+  command: locust -f main.py
+  external_links:
+    - locusttestapi_app_1:app
+  ports:
+    - "8089:8089"
+  volumes:
+    - ./locust:/home/ubuntu/locust
+  working_dir: /home/ubuntu/locust

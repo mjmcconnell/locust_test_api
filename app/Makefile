@@ -19,9 +19,7 @@ run: requirements migrate
 
 test: requirements migrate
 	# run tests with a coverage report
-	@$(MANAGE) makemigrations
-	@$(MANAGE) migrate
-	$(PY) coverage erase
-	$(PY) coverage run --source='.' manage.py test apps radio
-	$(PY) coverage report -m
-	$(PY) coverage xml
+	coverage erase
+	coverage run --source='.' manage.py test apps
+	coverage report -m
+	coverage xml

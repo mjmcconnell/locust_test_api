@@ -105,5 +105,5 @@ class WebsiteUser(HttpLocust):
 
     # Note the host url uses the "web" vhost name
     # to map to the web docker instance ip address
-    host = "http://web:8000"
+    host = "http://app:8000"
     task_set = MainTasks

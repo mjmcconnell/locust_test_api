@@ -1,0 +1,10 @@
+test_coverage:
+  build: dockerfiles/app
+  command: bash -c "sleep 2 && make test"
+  external_links:
+    - locusttestapi_db_1:db
+  ports:
+    - "8000:8000"
+  volumes:
+    - ./app:/home/ubuntu/app/
+  working_dir: /home/ubuntu/app/

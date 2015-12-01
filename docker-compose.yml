@@ -5,11 +5,22 @@ db:
   volumes:
     - /var/lib/postgresql
 
-web:
+app:
   build: dockerfiles/app
   command: bash -c "sleep 2 && make run"
-  links:
-    - db
+  external_links:
+    - locusttestapi_db_1:db
+  ports:
+    - "8000:8000"
+  volumes:
+    - ./app:/home/ubuntu/app/
+  working_dir: /home/ubuntu/app/
+
+test_coverage:
+  build: dockerfiles/app
+  command: bash -c "sleep 2 && make test"
+  external_links:
+    - locusttestapi_db_1:db
   ports:
     - "8000:8000"
   volumes:
@@ -19,8 +30,8 @@ web:
 locust:
   build: dockerfiles/locust
   command: locust -f main.py
-  links:
-    - web
+  external_links:
+    - locusttestapi_app_1:app
   ports:
     - "8089:8089"
   volumes:
