@@ -6,7 +6,7 @@ help:
 	@echo ""
 	@echo "make run:		Run local development server inside container."
 	@echo "make test:		Run tests."
-	@echo "make locust:		Run the locust server inside container."
+	@echo "make run-locust:		Run the locust server inside container."
 
 db:
 	docker-compose -f docker-db.yml up -d --no-recreate
