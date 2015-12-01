@@ -13,7 +13,7 @@ db:
 
 run-locust:
 ifneq ($(APP_RUNNING), true)
-	xterm -hold -e make run &
+	gnome-terminal -e "make run"
 	bash -c "sleep 1"
 endif
 
